@@ -51,21 +51,33 @@ def get_Rc(alpha):
     Rc = (-alpha[1] + math.sqrt(temp)) / (2*alpha[2])
     return Rc
 
+def save_vars(x,y,z,p):
+    np.savetxt('x.txt', x)
+    np.savetxt('y.txt', y)
+    np.savetxt('z.txt', z)
+    np.savetxt('p.txt', p)
+
+def load_vars():
+    x=np.loadtxt('x.txt')
+    y=np.loadtxt('y.txt')
+    z=np.loadtxt('z.txt')
+    p=np.loadtxt('p.txt')
+    return x,y,z,p
+
 def main():
     #Define GPS values
-    #TODO: put these in a numpy matrix and read from txt files.
-    x = np.array([16414028.668, 16896800.648, 9339639.616, -18335582.591])
-    y = np.array([660383.618, -18784061.365, -14514964.658, -11640868.305])
-    z = np.array([20932036.907, -7418318.856, 20305107.161, 15028599.071])
-    pt  = np.array([24658975.31743, 22964286.41228, 21338550.64536, 23606547.29359])
-    
+    x,y,z,pt = load_vars()
+
     a = compress(x)
     b = compress(y)
     c = compress(z)
     d = compress(pt,True)
     e =  get_e(x,y,z,pt)
-
+    
+    #Define Matrixes
     M = make_matrix(a,b,c)
+    
+    #Matrix inverse for division
     M_inv = np.linalg.pinv(M)
     
     #vectors
