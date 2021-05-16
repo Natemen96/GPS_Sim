@@ -3,6 +3,7 @@ import numpy as np
 
 
 def compress(x,flip = False):
+    #linearly independent combination of differences
     if flip == False:
         a1 =  2*(x[1] - x[0])
         a2 =  2*(x[2] - x[1])
@@ -33,18 +34,18 @@ def make_matrix(a,b,c):
     M = np.dstack((a,b,c)).reshape((3,3))
     return  M
 
-def get_alpha(MI, MG,x,y,z,pt):
+def get_a(MI, MG,x,y,z,pt):
     #final compression
     def sub_alp1(MI, MG, x, idx):
         return MI[idx]*(MG[idx] - x[3])
     def sub_alp0(MG,x,idx):
         return (MG[idx] - x[3])**2
 
-    alpha0 = sub_alp0(MG,x,0) + sub_alp0(MG,y,1) + sub_alp0(MG,z,2) - pt[3]**2
-    alpha1 = 2*(pt[3] + sub_alp1(MI, MG, x, 0) + sub_alp1(MI, MG, y, 1) + sub_alp1(MI, MG, z, 2))
-    alpha2 = (MI[0]**2) + (MI[1]**2) + (MI[2]**2) - 1
+    a0 = sub_alp0(MG,x,0) + sub_alp0(MG,y,1) + sub_alp0(MG,z,2) - pt[3]**2
+    a1 = 2*(pt[3] + sub_alp1(MI, MG, x, 0) + sub_alp1(MI, MG, y, 1) + sub_alp1(MI, MG, z, 2))
+    a2 = (MI[0]**2) + (MI[1]**2) + (MI[2]**2) - 1
 
-    return np.array([alpha0,alpha1,alpha2])
+    return np.array([a0,a1,a2])
 
 def get_Rc(alpha):
     temp = (alpha[1]**2 - 4*alpha[2]*alpha[0])
@@ -64,30 +65,32 @@ def load_vars():
     p=np.loadtxt('p.txt')
     return x,y,z,p
 
+def four_gps_sol(x,y,z,pt):
+    alpha = compress(x)
+    beta = compress(y)
+    gamma = compress(z)
+    delta = compress(pt,True)
+    epsilon =  get_e(x,y,z,pt)
+    
+    #Define Matrixes
+    H = make_matrix(alpha,beta,gamma)
+    
+    #Matrix inverse for division
+    H_inv = np.linalg.pinv(H)
+    
+    #vectors ( not sure where this is from?)
+    MI = -1*H_inv@(delta.T) 
+    MG = -1*H_inv@(epsilon.T)
+
+    a = get_a(MI,MG,x,y,z,pt)
+    Rc = get_Rc(a)
+    print(MI*Rc + MG)
+
 def main():
     #Define GPS values
     x,y,z,pt = load_vars()
+    four_gps_sol(x,y,z,pt)
 
-    a = compress(x)
-    b = compress(y)
-    c = compress(z)
-    d = compress(pt,True)
-    e =  get_e(x,y,z,pt)
-    
-    #Define Matrixes
-    M = make_matrix(a,b,c)
-    
-    #Matrix inverse for division
-    M_inv = np.linalg.pinv(M)
-    
-    #vectors
-    MI = -1*M_inv@(d.T) 
-    MG = -1*M_inv@(e.T)
-
-    alpha = get_alpha(MI,MG,x,y,z,pt)
-    Rc = get_Rc(alpha)
-    print(MI*Rc + MG)
-    print(Rc)
 
 if __name__ ==  "__main__":
     main()
