@@ -1,5 +1,6 @@
 import math
 import numpy as np 
+from time import time
 
 
 def compress(x,flip = False):
@@ -65,7 +66,8 @@ def load_vars():
     p=np.loadtxt('p.txt')
     return x,y,z,p
 
-def four_gps_sol(x,y,z,pt):
+def four_gps_solwithsp(x,y,z,pt):
+    "4 satellite spherical-plane algorithm"
     alpha = compress(x)
     beta = compress(y)
     gamma = compress(z)
@@ -81,20 +83,66 @@ def four_gps_sol(x,y,z,pt):
     #vectors (from 5)
     B = 1*H_inv@(delta.T) 
     C = -1*H_inv@(epsilon.T)
+    
+    b_i = []
+    x_list = []
+    y_list = []
+    z_list = []
+    for i in range(4):
+        a = get_a(B,C,x,y,z,pt,i)
+        b = get_b(a)
+        x_i, y_i, z_i =B*b + C
+        b_i.append(b)
+        x_list.append(x_i)
+        y_list.append(y_i)
+        z_list.append(z_i)
+    b=np.array(b_i)
+    x_i=np.array(x_list)
+    y_i=np.array(y_list)
+    z_i=np.array(z_list)
+    
+    # print('a2,a1,a1:')
+    # print(np.flip(a,0))
+    # print('b:')
+    # print(b)
+    # print('x,y,z:')
+    # print(x_i, y_i, z_i)
+    return x_i, y_i, z_i, b
 
-    a = get_a(B,C,x,y,z,pt)
-    b = get_b(a)
-    print(a)
-    print(B[:3]*b + C[:3])
-    print(b)
+def _verification(x,x_i, y,y_i, z,z_i,p_i, b,n):
+    p_hat = []
+    for i in range(n):
+        rho_i = math.sqrt((x-x_i[i])**2 + (y-y_i[i])**2 + (z-z_i[i])**2)
+        p = rho_i + b
+        p_hat.append(p)
+    p_hat = np.array(p_hat)
+    score = np.linalg.norm((p_i-p_hat))
+    print(score)
+def verification(x,x_i, y,y_i, z,z_i,p_i, b,n):
+    p_hat = []
+    for i in range(n):
+        rho_i = math.sqrt((x[i]-x_i[i])**2 + (y[i]-y_i[i])**2 + (z[i]-z_i[i])**2)
+        p = rho_i + b[i]
+        p_hat.append(p)
+    p_hat = np.array(p_hat)
+    error = np.linalg.norm((p_i-p_hat))
+    if error < 10**(-6):
+        print(error)
+        print('Reasonable Error')
+
 
 
 def main():
     #Define GPS values
-    x,y,z,pt = load_vars()
+    tic = time()
+    x_i,y_i,z_i,p_i = load_vars()
+    n = x_i.shape[0]
     # _four_gps_sol(x,y,z,pt)
-    four_gps_sol(x,y,z,pt)
+    x,y,z,b = four_gps_solwithsp(x_i,y_i,z_i,p_i)
 
+    verification(x,x_i, y,y_i, z,z_i,p_i, b,n)
+    toc = time()
+    print(toc -tic)  
 
 if __name__ ==  "__main__":
     main()
