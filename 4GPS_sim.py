@@ -34,23 +34,23 @@ def make_matrix(a,b,c):
     M = np.dstack((a,b,c)).reshape((3,3))
     return  M
 
-def get_a(MI, MG,x,y,z,pt):
+def get_a(MI, MG,x,y,z,pt, i = 0):
     #final compression
     def sub_alp1(MI, MG, x, idx):
-        return MI[idx]*(MG[idx] - x[3])
+        return MI[idx]*(MG[idx] - x[i])
     def sub_alp0(MG,x,idx):
-        return (MG[idx] - x[3])**2
+        return (MG[idx] - x[i])**2
 
-    a0 = sub_alp0(MG,x,0) + sub_alp0(MG,y,1) + sub_alp0(MG,z,2) - pt[3]**2
-    a1 = 2*(pt[3] + sub_alp1(MI, MG, x, 0) + sub_alp1(MI, MG, y, 1) + sub_alp1(MI, MG, z, 2))
+    a0 = sub_alp0(MG,x,0) + sub_alp0(MG,y,1) + sub_alp0(MG,z,2) - pt[i]**2
+    a1 = 2*(pt[i] + sub_alp1(MI, MG, x, 0) + sub_alp1(MI, MG, y, 1) + sub_alp1(MI, MG, z, 2))
     a2 = (MI[0]**2) + (MI[1]**2) + (MI[2]**2) - 1
 
     return np.array([a0,a1,a2])
 
-def get_Rc(alpha):
+def get_b(alpha):
     temp = (alpha[1]**2 - 4*alpha[2]*alpha[0])
-    Rc = (-alpha[1] + math.sqrt(temp)) / (2*alpha[2])
-    return Rc
+    b = (-alpha[1] + math.sqrt(temp)) / (2*alpha[2])
+    return b
 
 def save_vars(x,y,z,p):
     np.savetxt('x.txt', x)
@@ -78,17 +78,21 @@ def four_gps_sol(x,y,z,pt):
     #Matrix inverse for division
     H_inv = np.linalg.pinv(H)
     
-    #vectors ( not sure where this is from?)
-    MI = -1*H_inv@(delta.T) 
-    MG = -1*H_inv@(epsilon.T)
+    #vectors (from 5)
+    B = 1*H_inv@(delta.T) 
+    C = -1*H_inv@(epsilon.T)
 
-    a = get_a(MI,MG,x,y,z,pt)
-    Rc = get_Rc(a)
-    print(MI*Rc + MG)
+    a = get_a(B,C,x,y,z,pt)
+    b = get_b(a)
+    print(a)
+    print(B[:3]*b + C[:3])
+    print(b)
+
 
 def main():
     #Define GPS values
     x,y,z,pt = load_vars()
+    # _four_gps_sol(x,y,z,pt)
     four_gps_sol(x,y,z,pt)
 
 
