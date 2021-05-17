@@ -1,5 +1,4 @@
-# Math for GPS Sim 
-
+# Math for GPS Sim
 
 Install [Purple Pi](https://github.com/nschloe/purple-pi) to Render Math
 
@@ -26,13 +25,9 @@ $$
 
 $$ 0 = \alpha_j + \beta_j y + \gamma_j z + \delta_j b + \epsilon_j, j = 1, ..., n-1 \qquad$$
 
-$$ \alpha_j = 2(x_{j+1} - x_j), \beta_j = 2(y_{j+1} - y_j), \\
-
-\gamma_j = 2(z_{j+1} - z_j), \delta_j = 2(p_{j} - p_{j+1}), \\
-
-
-\epsilon_j = (x_j^2 + y_j^2 + z_j^2) - (x_{j+1}^2 + y_{j+1}^2 + z_{j+1}^2) - (p_j^2 - p_{j+1}^2) = (r_j^2 - r_{j-1}^2) + (p_{j+1}^2 - p_j^2)
-$$
+$$ \alpha_j = 2(x_{j+1} - x_j), \beta_j = 2(y_{j+1} - y_j), $$
+$$ \gamma_j = 2(z_{j+1} - z_j), \delta_j = 2(p_{j} - p_{j+1}), $$
+$$ \epsilon_j = (x_j^2 + y_j^2 + z_j^2) - (x_{j+1}^2 + y_{j+1}^2 + z_{j+1}^2) - (p_j^2 - p_{j+1}^2) = (r_j^2 - r_{j-1}^2) + (p_{j+1}^2 - p_j^2)$$
 
 ### Solutions with five or more peudorange measurements
 
@@ -44,7 +39,8 @@ where
 
 $$ \bm{s} = [x,y,z,b]^T $$
 
-$$ H = \begin{bmatrix}\alpha_1 & \beta_1 & \gamma_1  & \delta_1 \\
+$$
+H = \begin{bmatrix} \alpha_1 & \beta_1 & \gamma_1  & \delta_1 \\
        \alpha_2 & \beta_2 & \gamma_2  & \delta_2  \\
        \vdots  & \vdots  & \vdots & \vdots \\
        \alpha_{n-1} & \beta_{n-1} & \gamma_{n-1}  & \delta_{n-1}  
@@ -54,13 +50,14 @@ $$
 
 ### Solutions with four peudorange measurements
 
-$$ \begin{bmatrix}
+$$
+\begin{bmatrix}
       \alpha_1 & \beta_1 & \gamma_1  \\
        \alpha_2 & \beta_2 & \gamma_2   \\
        \alpha_3 & \beta_3 & \gamma_3
       \end{bmatrix}
       \begin{bmatrix} x \\ y \\ z \end{bmatrix} =
-      \begin{bmatrix} \delta_1 \\ \delta_2 \\ \delta_3 \end{bmatrix} b -
+      - \begin{bmatrix} \delta_1 \\ \delta_2 \\ \delta_3 \end{bmatrix} b -
       \begin{bmatrix} \epsilon_1 \\ \epsilon_2 \\ \epsilon_3 \end{bmatrix}
 $$
 or
@@ -68,9 +65,9 @@ or
 (5)
 
 $$
-     \begin{bmatrix} x \\ y \\ z \end{bmatrix} =
-      \begin{bmatrix} B_1 \\ B_2 \\ B_3 \end{bmatrix} b +
-      \begin{bmatrix} C_1 \\ C_2 \\ C_3 \end{bmatrix} \qquad
+\begin{bmatrix} x \\ y \\ z \end{bmatrix} =
+\begin{bmatrix} B_1 \\ B_2 \\ B_3 \end{bmatrix} b +
+\begin{bmatrix} C_1 \\ C_2 \\ C_3 \end{bmatrix} \qquad
 $$
 
 (6)
@@ -118,13 +115,12 @@ $\rho_j^2 = (x-x_j)^2 + (y-y_j)^2 + (z-z_j)^2$
 $P_2 x^2 + P_1 x + Q_2 y^2 + Q_1 y + R_2 z^2 + R_1 z + U_1 xy + U_2 xz + U_3 yz + W = 0 \qquad$
 where
 
-$$ P_2 = (x_1 - x_j)^2 - d_{ij}, P_1 = -e_{ij}(x_i  - x_j) + 2x_j d_{ij}^2, \\
-Q_2 = (y_1 - y_j)^2 - d_{ij}, Q_1 = -e_{ij}(y_i  - y_j) + 2y_j d_{ij}^2, \\
-R_2 = (z_1 - z_j)^2 - d_{ij}, R_1 = -e_{ij}(z_i  - z_j) + 2z_j d_{ij}^2, \\
-U_1 = 2(x_i - x_j)(y_i - y_j), U_2 = 2(x_i - x_j) (z_i - z_j), \\
-W = \frac{e_{ij}^2}{4} - d_{ij}^2 r_j^2  \\
-e_ ij = r_i^2 - r_j^2 - d_{ij}^2
-$$
+$$ P_2 = (x_1 - x_j)^2 - d_{ij}, P_1 = -e_{ij}(x_i  - x_j) + 2x_j d_{ij}^2 $$
+$$ Q_2 = (y_1 - y_j)^2 - d_{ij}, Q_1 = -e_{ij}(y_i  - y_j) + 2y_j d_{ij}^2,$$
+$$R_2 = (z_1 - z_j)^2 - d_{ij}, R_1 = -e_{ij}(z_i  - z_j) + 2z_j d_{ij}^2, $$
+$$ U_1 = 2(x_i - x_j)(y_i - y_j), U_2 = 2(x_i - x_j) (z_i - z_j),$$
+$$W = \frac{e_{ij}^2}{4} - d_{ij}^2 r_j^2 $$
+$$e_ ij = r_i^2 - r_j^2 - d_{ij}^2$$
 
 (14)
 
@@ -148,7 +144,8 @@ $$ H = \begin{bmatrix} a_1 & b_1 & c_1  \\
        \vdots  & \vdots  & \vdots \\
        a_{n-2} & b_{n-2} & c_{n-2}  
       \end{bmatrix},
-      \bm{q} = \begin{bmatrix} a_{n-2} \\ b_{n-2} \\ c_{n-2} \end{bmatrix}
+      \bm{q} = \begin{bmatrix} a_{n-2} \\ b_{n-2} \\ c_{n-2}
+      \end{bmatrix}
 $$
 
 (16)

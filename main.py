@@ -1,7 +1,6 @@
 import math
 import numpy as np 
-from time import time
-
+import yaml
 
 def compress(x,n=4,flip = False):
     "linearly independent combination of differences, equations 3"
@@ -62,15 +61,14 @@ def save_vars(x,y,z,p):
     np.savetxt('z.txt', z)
     np.savetxt('p.txt', p)
 
-def load_vars(n = 8):
-    assert n >= 4, 'n must be <= 4'
-    x=np.loadtxt('x.txt')[:n]
-    y=np.loadtxt('y.txt')[:n]
-    z=np.loadtxt('z.txt')[:n]
-    p=np.loadtxt('p.txt')[:n]
+def load_vars(sat):
+    x = np.take(np.loadtxt('x.txt'), sat)
+    y = np.take(np.loadtxt('y.txt'), sat)
+    z = np.take(np.loadtxt('z.txt'), sat)
+    p = np.take(np.loadtxt('p.txt'), sat)
     return x,y,z,p
 
-def four_gps_solwithsp(x,y,z,pt):
+def four_sat_solwithsp(x,y,z,pt):
     "4 satellite spherical-plane algorithm"
     alpha = compress(x)
     beta = compress(y)
@@ -96,7 +94,8 @@ def four_gps_solwithsp(x,y,z,pt):
     return x_i, y_i, z_i, b
 
 
-def n_gps_solwithsp(x,y,z,pt,n):
+def n_sat_solwithsp(x,y,z,pt,n):
+    "n satellite spherical-plane algorithm"
     alpha = compress(x,n)
     beta = compress(y,n)
     gamma = compress(z,n)
@@ -112,8 +111,6 @@ def n_gps_solwithsp(x,y,z,pt,n):
 def verification(x,x_i, y,y_i, z,z_i,p_i, b,n):
     p_hat = []
     for i in range(n):
-        # rho_i = math.sqrt((x[i]-x_i[i])**2 + (y[i]-y_i[i])**2 + (z[i]-z_i[i])**2)
-        # p = rho_i + b[i]
         rho_i = math.sqrt((x-x_i[i])**2 + (y-y_i[i])**2 + (z-z_i[i])**2)
         p = rho_i + b
         p_hat.append(p)
@@ -121,30 +118,28 @@ def verification(x,x_i, y,y_i, z,z_i,p_i, b,n):
     error = np.linalg.norm((p_i-p_hat))
     print('error:')
     print(error)
-    if error < 10**(-4):
-        print('Reasonable Error')
-    else:
-        print('Could be better')
 
 
 
 def main():
     #Define GPS values
-    tic = time()
-    # x_i,y_i,z_i,p_i = load_vars(4)
-    # n = x_i.shape[0]
-    # x,y,z,b = four_gps_solwithsp(x_i,y_i,z_i,p_i)
-    x_i,y_i,z_i,p_i = load_vars()
-    n = x_i.shape[0]
-    x,y,z,b = n_gps_solwithsp(x_i,y_i,z_i,p_i,n)
-    print(x,y,z,b)
+    with open(r'gps.yaml') as file:
+        gps_info = yaml.safe_load(file)
+    satellite = gps_info[0]['satellite']
+    n = len(satellite)
+    assert n >= 4, 'n must be <= 4'
+    x_i,y_i,z_i,p_i = load_vars(satellite)
+    if n == 4: 
+        if gps_info[1]['algo'][0] == 'spherical-plane':
+            x,y,z,b = four_sat_solwithsp(x_i,y_i,z_i,p_i)
+    else:
+        if gps_info[1]['algo'][0] == 'spherical-plane':
+            x,y,z,b = n_sat_solwithsp(x_i,y_i,z_i,p_i,n)
     verification(x,x_i, y,y_i, z,z_i,p_i, b,n)
-    toc = time()
-    print('time:')
-    print(toc -tic)  
+    print('receiver location')
+    print(x,y,z,b)
+
+
 
 if __name__ ==  "__main__":
     main()
-
-
-

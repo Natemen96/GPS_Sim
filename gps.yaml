@@ -1,0 +1,16 @@
+# satellite.yaml file
+# tell main.py what satellite you want to use, less than 4 will error out
+
+- satellite:
+  # - 1
+  - 2
+  # - 3
+  - 4
+  - 5
+  - 6
+  - 7
+  # - 8
+
+- algo:
+  - spherical-plane 
+  # - hyperbolic-plane
