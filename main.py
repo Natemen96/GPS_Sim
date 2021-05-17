@@ -3,48 +3,51 @@ import numpy as np
 from time import time
 
 
-def compress(x,flip = False):
-    #linearly independent combination of differences
+def compress(x,n=4,flip = False):
+    "linearly independent combination of differences, equations 3"
+    a_list = []
     if flip == False:
-        a1 =  2*(x[1] - x[0])
-        a2 =  2*(x[2] - x[1])
-        a3 =  2*(x[3] - x[2])
+        for j in range(n-1):
+            a_j = 2*(x[j+1] - x[j])
+            a_list.append(a_j)
     elif flip == True:
-        a1 =  2*(x[0] - x[1])
-        a2 =  2*(x[1] - x[2])
-        a3 =  2*(x[2] - x[3])
+        for j in range(n-1):
+            a_j = 2*(x[j] - x[j+1])
+            a_list.append(a_j)
+    return np.array(a_list)
 
-    return np.array([a1,a2,a3])
-
-def square_sum_idx(x,y= None,z = None,idx = 0, num=3):
+def square_sum_idx(x,y= None,z = None,j = 0, num=3):
+    "equations 3"
     if num == 3:
-        return x[idx]**2 + y[idx]**2 + z[idx]**2
+        return x[j]**2 + y[j]**2 + z[j]**2
     elif num == 2:
-        return x[idx]**2 - x[idx+1]**2 
+        return x[j]**2 - x[j+1]**2 
     else: 
-        return x[idx]**2
+        return x[j]**2
 
-def get_e(x,y,z,p):
-    e1 =  square_sum_idx(x,y,z,0) - square_sum_idx(x,y,z,1) - square_sum_idx(p,idx = 0, num =2) 
-    e2 =  square_sum_idx(x,y,z,1) - square_sum_idx(x,y,z,2) - square_sum_idx(p,idx = 1, num =2)
-    e3 =  square_sum_idx(x,y,z,2) - square_sum_idx(x,y,z,3) - square_sum_idx(p,idx = 2, num =2)
-    return np.array([e1,e2,e3])
+def get_e(x,y,z,p,n=4):
+    e_list = []
+    for j in range(n-1):
+        e_j = square_sum_idx(x,y,z,j) - square_sum_idx(x,y,z,j+1) - square_sum_idx(p,j = j, num =2) 
+        e_list.append(e_j)
+    return np.array(e_list)
 
-def make_matrix(a,b,c):
+def make_matrix(M):
 
-    M = np.dstack((a,b,c)).reshape((3,3))
-    return  M
+    H = np.dstack(M)
+    H = H.reshape(H.shape[1],H.shape[2])
+    return  H
 
-def get_a(MI, MG,x,y,z,pt, i = 0):
+def get_a(B, C,x,y,z,pt, i = 3):
     #final compression
-    def sub_alp1(MI, MG, x, idx):
-        return MI[idx]*(MG[idx] - x[i])
-    def sub_alp0(MG,x,idx):
-        return (MG[idx] - x[i])**2
+    def sub_alp1(B, C, x, idx):
+        return B[idx]*(C[idx] - x[i])
+    def sub_alp0(C,x,idx):
+        return (C[idx] - x[i])**2
 
-    a0 = sub_alp0(MG,x,0) + sub_alp0(MG,y,1) + sub_alp0(MG,z,2) - pt[i]**2
-    a1 = 2*(pt[i] + sub_alp1(MI, MG, x, 0) + sub_alp1(MI, MG, y, 1) + sub_alp1(MI, MG, z, 2))
-    a2 = (MI[0]**2) + (MI[1]**2) + (MI[2]**2) - 1
+    a2 = (B[0]**2) + (B[1]**2) + (B[2]**2) - 1
+    a1 = 2*(pt[i] + sub_alp1(B, C, x, 0) + sub_alp1(B, C, y, 1) + sub_alp1(B, C, z, 2))
+    a0 = sub_alp0(C,x,0) + sub_alp0(C,y,1) + sub_alp0(C,z,2) - pt[i]**2
 
     return np.array([a0,a1,a2])
 
@@ -59,11 +62,12 @@ def save_vars(x,y,z,p):
     np.savetxt('z.txt', z)
     np.savetxt('p.txt', p)
 
-def load_vars():
-    x=np.loadtxt('x.txt')
-    y=np.loadtxt('y.txt')
-    z=np.loadtxt('z.txt')
-    p=np.loadtxt('p.txt')
+def load_vars(n = 8):
+    assert n >= 4, 'n must be <= 4'
+    x=np.loadtxt('x.txt')[:n]
+    y=np.loadtxt('y.txt')[:n]
+    z=np.loadtxt('z.txt')[:n]
+    p=np.loadtxt('p.txt')[:n]
     return x,y,z,p
 
 def four_gps_solwithsp(x,y,z,pt):
@@ -71,77 +75,72 @@ def four_gps_solwithsp(x,y,z,pt):
     alpha = compress(x)
     beta = compress(y)
     gamma = compress(z)
-    delta = compress(pt,True)
+    delta = compress(pt,flip = True)
     epsilon =  get_e(x,y,z,pt)
     
     #Define Matrixes
-    H = make_matrix(alpha,beta,gamma)
+    H = make_matrix((alpha,beta,gamma))
     
     #Matrix inverse for division
     H_inv = np.linalg.pinv(H)
     
     #vectors (from 5)
-    B = 1*H_inv@(delta.T) 
+
+    B = -1*H_inv@(delta.T) 
     C = -1*H_inv@(epsilon.T)
     
-    b_i = []
-    x_list = []
-    y_list = []
-    z_list = []
-    for i in range(4):
-        a = get_a(B,C,x,y,z,pt,i)
-        b = get_b(a)
-        x_i, y_i, z_i =B*b + C
-        b_i.append(b)
-        x_list.append(x_i)
-        y_list.append(y_i)
-        z_list.append(z_i)
-    b=np.array(b_i)
-    x_i=np.array(x_list)
-    y_i=np.array(y_list)
-    z_i=np.array(z_list)
-    
-    # print('a2,a1,a1:')
-    # print(np.flip(a,0))
-    # print('b:')
-    # print(b)
-    # print('x,y,z:')
-    # print(x_i, y_i, z_i)
+    a = get_a(B,C,x,y,z,pt)
+    print(np.flip(a,0))
+    b = get_b(a)
+    x_i, y_i, z_i =B*b + C
     return x_i, y_i, z_i, b
 
-def _verification(x,x_i, y,y_i, z,z_i,p_i, b,n):
+
+def n_gps_solwithsp(x,y,z,pt,n):
+    alpha = compress(x,n)
+    beta = compress(y,n)
+    gamma = compress(z,n)
+    delta = compress(pt,n,flip = True)
+    u =  get_e(x,y,z,pt,n)
+    H = make_matrix((alpha,beta,gamma,delta))
+
+    HTH_inv = np.linalg.pinv(H.T@H)
+    #I believe this is a mistake in the paper, it should be -H^Tu not H^Tu
+    x_i,y_i,z_i,b =  HTH_inv@-(H.T@u) 
+    return x_i,y_i,z_i,b
+
+def verification(x,x_i, y,y_i, z,z_i,p_i, b,n):
     p_hat = []
     for i in range(n):
+        # rho_i = math.sqrt((x[i]-x_i[i])**2 + (y[i]-y_i[i])**2 + (z[i]-z_i[i])**2)
+        # p = rho_i + b[i]
         rho_i = math.sqrt((x-x_i[i])**2 + (y-y_i[i])**2 + (z-z_i[i])**2)
         p = rho_i + b
         p_hat.append(p)
     p_hat = np.array(p_hat)
-    score = np.linalg.norm((p_i-p_hat))
-    print(score)
-def verification(x,x_i, y,y_i, z,z_i,p_i, b,n):
-    p_hat = []
-    for i in range(n):
-        rho_i = math.sqrt((x[i]-x_i[i])**2 + (y[i]-y_i[i])**2 + (z[i]-z_i[i])**2)
-        p = rho_i + b[i]
-        p_hat.append(p)
-    p_hat = np.array(p_hat)
     error = np.linalg.norm((p_i-p_hat))
-    if error < 10**(-6):
-        print(error)
+    print('error:')
+    print(error)
+    if error < 10**(-4):
         print('Reasonable Error')
+    else:
+        print('Could be better')
 
 
 
 def main():
     #Define GPS values
     tic = time()
+    # x_i,y_i,z_i,p_i = load_vars(4)
+    # n = x_i.shape[0]
+    # x,y,z,b = four_gps_solwithsp(x_i,y_i,z_i,p_i)
     x_i,y_i,z_i,p_i = load_vars()
     n = x_i.shape[0]
-    # _four_gps_sol(x,y,z,pt)
-    x,y,z,b = four_gps_solwithsp(x_i,y_i,z_i,p_i)
-
+    x,y,z,b = n_gps_solwithsp(x_i,y_i,z_i,p_i,n)
+    print(x,y,z,b)
     verification(x,x_i, y,y_i, z,z_i,p_i, b,n)
     toc = time()
+    print('time:')
     print(toc -tic)  
 
 if __name__ ==  "__main__":

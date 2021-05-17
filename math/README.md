@@ -28,7 +28,7 @@ $$ 0 = \alpha_j + \beta_j y + \gamma_j z + \delta_j b + \epsilon_j, j = 1, ..., 
 
 $$ \alpha_j = 2(x_{j+1} - x_j), \beta_j = 2(y_{j+1} - y_j), \\
 
-\gamma_j = 2(z_{j+1} - z_j), \delta_j = 2(p_{1} - p_{j+1}), \\
+\gamma_j = 2(z_{j+1} - z_j), \delta_j = 2(p_{j} - p_{j+1}), \\
 
 
 \epsilon_j = (x_j^2 + y_j^2 + z_j^2) - (x_{j+1}^2 + y_{j+1}^2 + z_{j+1}^2) - (p_j^2 - p_{j+1}^2) = (r_j^2 - r_{j-1}^2) + (p_{j+1}^2 - p_j^2)
@@ -39,6 +39,10 @@ $$
 (4)
 
 $$ (H^T H) \bm{s} = H^T \bm{u} \qquad$$
+
+where
+
+$$ \bm{s} = [x,y,z,b]^T $$
 
 $$ H = \begin{bmatrix}\alpha_1 & \beta_1 & \gamma_1  & \delta_1 \\
        \alpha_2 & \beta_2 & \gamma_2  & \delta_2  \\
