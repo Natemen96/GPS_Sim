@@ -1,0 +1,3 @@
+[submodule "laika"]
+	path = laika
+	url = https://github.com/commaai/laika.git

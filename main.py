@@ -1,6 +1,7 @@
 import math
 import numpy as np 
 import yaml
+import geocoder
 
 def compress(x,n=4,flip = False):
     "linearly independent combination of differences, equations 3"
@@ -61,11 +62,16 @@ def save_vars(x,y,z,p):
     np.savetxt('z.txt', z)
     np.savetxt('p.txt', p)
 
-def load_vars(sat):
-    x = np.take(np.loadtxt('x.txt'), sat)
-    y = np.take(np.loadtxt('y.txt'), sat)
-    z = np.take(np.loadtxt('z.txt'), sat)
-    p = np.take(np.loadtxt('p.txt'), sat)
+def load_vars(sat, new):
+    sat =[x - 1 for x in sat]
+    if new == True: 
+        folder = r'sat/'
+    else: 
+        folder = r'og_sat/'
+    x = np.take(np.loadtxt(folder+'x.txt'), sat)
+    y = np.take(np.loadtxt(folder+'y.txt'), sat)
+    z = np.take(np.loadtxt(folder+'z.txt'), sat)
+    p = np.take(np.loadtxt(folder+'p.txt'), sat)
     return x,y,z,p
 
 def four_sat_solwithsp(x,y,z,pt):
@@ -118,26 +124,40 @@ def verification(x,x_i, y,y_i, z,z_i,p_i, b,n):
     error = np.linalg.norm((p_i-p_hat))
     print('error:')
     print(error)
+    print()
 
+def convert_to_lat_lon(x,y,z):
 
+    R = 6371000 #Earth radius (m)
+    lat = np.degrees(np.arcsin(z/R))
+    lon = np.degrees(np.arctan2(y, x))
+    return lat, lon
 
 def main():
     #Define GPS values
     with open(r'gps.yaml') as file:
         gps_info = yaml.safe_load(file)
     satellite = gps_info[0]['satellite']
+    new = gps_info[2]['new'][0]
     n = len(satellite)
     assert n >= 4, 'n must be <= 4'
-    x_i,y_i,z_i,p_i = load_vars(satellite)
+    x_i,y_i,z_i,p_i = load_vars(satellite, new)
     if n == 4: 
         if gps_info[1]['algo'][0] == 'spherical-plane':
             x,y,z,b = four_sat_solwithsp(x_i,y_i,z_i,p_i)
     else:
         if gps_info[1]['algo'][0] == 'spherical-plane':
             x,y,z,b = n_sat_solwithsp(x_i,y_i,z_i,p_i,n)
-    verification(x,x_i, y,y_i, z,z_i,p_i, b,n)
     print('receiver location')
     print(x,y,z,b)
+    print()
+    verification(x,x_i, y,y_i, z,z_i,p_i, b,n)
+
+    lat, lon = convert_to_lat_lon(x,y,z)
+    print(lat, lon)
+    g = geocoder.osm([lat, lon], method='reverse')
+    print (g.current_result.address)
+
 
 
 

@@ -8,7 +8,7 @@ Hoping to make it better since I thought it was a cool project.
 - [x] Covert .m to .py
 - [x] Hunt down source(s)
 - [x] Figure out what the expected inputs and outputs were  
-- [ ] Implementation of other Algorithms on paper
+- [ ] Implementations of other Algorithms on paper
 - [ ] Get creative
 
 <!-- ### Completed Column ✓

@@ -40,25 +40,26 @@ where
 $$ \bm{s} = [x,y,z,b]^T $$
 
 $$
-H = \begin{bmatrix} \alpha_1 & \beta_1 & \gamma_1  & \delta_1 \\
-       \alpha_2 & \beta_2 & \gamma_2  & \delta_2  \\
-       \vdots  & \vdots  & \vdots & \vdots \\
+H = \begin{bmatrix}
+      \alpha_1 & \beta_1 & \gamma_1  & \delta_1 \\\\
+       \alpha_2 & \beta_2 & \gamma_2  & \delta_2  \\\\
+       \vdots  & \vdots  & \vdots & \vdots \\\\
        \alpha_{n-1} & \beta_{n-1} & \gamma_{n-1}  & \delta_{n-1}  
       \end{bmatrix},
-      \bm{u} = \begin{bmatrix} \epsilon_1 \\ \epsilon_2 \\ \vdots \\ \epsilon_{n-1} \end{bmatrix}
+      \bm{u} = \begin{bmatrix} \epsilon_1 \\\\ \epsilon_2 \\\\ \vdots \\\\ \epsilon_{n-1} \end{bmatrix}
 $$
 
 ### Solutions with four peudorange measurements
 
 $$
 \begin{bmatrix}
-      \alpha_1 & \beta_1 & \gamma_1  \\
-       \alpha_2 & \beta_2 & \gamma_2   \\
+      \alpha_1 & \beta_1 & \gamma_1  \\\\
+       \alpha_2 & \beta_2 & \gamma_2   \\\\
        \alpha_3 & \beta_3 & \gamma_3
       \end{bmatrix}
-      \begin{bmatrix} x \\ y \\ z \end{bmatrix} =
-      - \begin{bmatrix} \delta_1 \\ \delta_2 \\ \delta_3 \end{bmatrix} b -
-      \begin{bmatrix} \epsilon_1 \\ \epsilon_2 \\ \epsilon_3 \end{bmatrix}
+      \begin{bmatrix} x \\\\ y \\\\ z \end{bmatrix} =
+      - \begin{bmatrix} \delta_1 \\\\ \delta_2 \\\\ \delta_3 \end{bmatrix} b -
+      \begin{bmatrix} \epsilon_1 \\\\ \epsilon_2 \\\\ \epsilon_3 \end{bmatrix}
 $$
 or
 
@@ -84,7 +85,7 @@ $a_0 = (C_1 - x_i)^2 + (C_2 -y_i)^2 + (C_3 - z_i)^2 - p^2_i$
 
 (7)
 
-$b = \frac{-a_1 + \sqrt{a_1^2 - 4a_2 a_0}}{2a_2} \qquad$
+$$b = \frac{-a_1 + \sqrt{a_1^2 - 4a_2 a_0}}{2a_2} \qquad$$
 
 ## The hyperbolic-plane algorithm
 
@@ -139,12 +140,14 @@ $$
 
 $(H^T H) \bm{r} = H^T \bm{q} \qquad$
 
-$$ H = \begin{bmatrix} a_1 & b_1 & c_1  \\
-       a_2 & b_2 & c_2    \\
-       \vdots  & \vdots  & \vdots \\
+$$
+H = \begin{bmatrix}
+      a_1 & b_1 & c_1  \\\\
+       a_2 & b_2 & c_2    \\\\
+       \vdots  & \vdots  & \vdots \\\\
        a_{n-2} & b_{n-2} & c_{n-2}  
       \end{bmatrix},
-      \bm{q} = \begin{bmatrix} a_{n-2} \\ b_{n-2} \\ c_{n-2}
+      \bm{q} = \begin{bmatrix} a_{n-2} \\\\ b_{n-2} \\\\ c_{n-2}
       \end{bmatrix}
 $$
 
@@ -154,34 +157,34 @@ $$b = \frac{1}{n} \sum_{i=1}^{n-2} (p_i - \rho_i) \qquad$$
 
 ### Solution with four peudorange measurements
 
-$$  \begin{bmatrix} b_1 & c_1  \\
-       b_2 & c_2     \\  
-      \end{bmatrix} \begin{bmatrix} y \\ z  \end{bmatrix}
-      = - \begin{bmatrix} a_1 \\ a_2 \end{bmatrix} x + \begin{bmatrix} f_1 \\ f_2 \end{bmatrix}
+$$  \begin{bmatrix} b_1 & c_1  \\\\
+       b_2 & c_2     \\\\
+      \end{bmatrix} \begin{bmatrix} y \\\\ z  \end{bmatrix}
+      = - \begin{bmatrix} a_1 \\ a_2 \end{bmatrix} x + \begin{bmatrix} f_1 \\\\ f_2 \end{bmatrix}
 $$
 or
 
 (17)
 
-$$  \begin{bmatrix} y \\ z  \end{bmatrix}
-      = \begin{bmatrix} \alpha_1 \\ \alpha_2 \end{bmatrix} x + \begin{bmatrix} f
-      \beta_1 \\ \beta_2 \end{bmatrix} \qquad $$
+$$  \begin{bmatrix} y \\\\ z  \end{bmatrix}
+      = \begin{bmatrix} \alpha_1 \\\\ \alpha_2 \end{bmatrix} x + \begin{bmatrix} 
+      \beta_1 \\\\ \beta_2 \end{bmatrix} \qquad $$
 
 (18)
 
 $0 = \gamma_2 x^2 + \gamma_1 x + \gamma_0 \qquad$
 
 $$
-\gamma_2 = P_2 + Q_2 \alpha_1^2 + R_2 \alpha_2^2 + U_1 \alpha_2 + U_3 \alpha_1 \alpha_2 \\
+\gamma_2 = P_2 + Q_2 \alpha_1^2 + R_2 \alpha_2^2 + U_1 \alpha_2 + U_3 \alpha_1 \alpha_2 $$
 
-\gamma_1 = P_1 + Q_1 \alpha_1  + R_1 \alpha_2 + U_1 \beta_1 + U_2 \beta_2 + 2(Q_2 \alpha_1 \beta_1 + R_2 \alpha_2 \beta_2) + U_3(\alpha_1 \beta_2 + \alpha_2 \beta_1)\\
+$$ \gamma_1 = P_1 + Q_1 \alpha_1  + R_1 \alpha_2 + U_1 \beta_1 + U_2 \beta_2 + 2(Q_2 \alpha_1 \beta_1 + R_2 \alpha_2 \beta_2) + U_3(\alpha_1 \beta_2 + \alpha_2 \beta_1)$$
 
-\gamma_0 = W + Q_2 \beta_1^2 + Q_1 \beta_1 + R_2 \beta_2^2 + R_1 \beta_2 + U_3 \beta_1 \beta_2
+$$\gamma_0 = W + Q_2 \beta_1^2 + Q_1 \beta_1 + R_2 \beta_2^2 + R_1 \beta_2 + U_3 \beta_1 \beta_2
 $$
 
 (19)
 
-$x = \frac{-\gamma_1^2 - \sqrt{4 \gamma_2 \gamma_0}}{2 \gamma_2} \qquad$
+$$ x = \frac{-\gamma_1^2 - \sqrt{4 \gamma_2 \gamma_0}}{2 \gamma_2} \qquad $$
 
 ## Sources
 

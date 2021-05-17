@@ -1,0 +1,14 @@
+name: gps_sim
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.8
+  - numpy
+  - pyyaml
+  - geocoder
+  - conda
+  - pip
+  # - pip:
+
+prefix: C:\ProgramData\Anaconda3\envs\gps_sim
